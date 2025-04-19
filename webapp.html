@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Tic Tac Toe</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background-color: #f4f4f4;
+    }
+    .board-container {
+      position: relative;
+      width: 310px; /* 3 * (100px + 5px gap) - 5px */
+      margin: auto;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+      justify-content: center;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background-color: #fff;
+      border: 2px solid #000;
+      font-size: 36px;
+      text-align: center;
+      vertical-align: middle;
+      line-height: 100px;
+      cursor: pointer;
+    }
+    .cell.taken {
+      pointer-events: none;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none; /* Let clicks go through the canvas */
+    }
+    .message {
+      margin-top: 20px;
+      font-size: 24px;
+    }
+    .reset-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Tic Tac Toe vs AI</h1>
+  <div class="board-container">
+    <div class="board" id="board"></div>
+    <canvas id="winCanvas" width="310" height="310"></canvas>
+  </div>
+  <div class="message" id="message"></div>
+  <button class="reset-btn" id="resetBtn">Reset Game</button>
+
+  <script>
+    const board = document.getElementById('board');
+    const canvas = document.getElementById('winCanvas');
+    const ctx = canvas.getContext('2d');
+    const message = document.getElementById('message');
+    const resetBtn = document.getElementById('resetBtn');
+
+    let currentPlayer = 'X';
+    let gameBoard = ['', '', '', '', '', '', '', '', ''];
+    let gameOver = false;
+
+    const winPatterns = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+      [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+      [0, 4, 8], [2, 4, 6]             // diagonals
+    ];
+
+    function createBoard() {
+      board.innerHTML = '';
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.addEventListener('click', () => makeMove(i));
+        board.appendChild(cell);
+      }
+    }
+
+    function startGame() {
+      gameBoard = ['', '', '', '', '', '', '', '', ''];
+      currentPlayer = 'X';
+      gameOver = false;
+      message.textContent = "Your turn!";
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      createBoard();
+    }
+
+    function makeMove(index) {
+      if (gameOver || gameBoard[index] !== '') return;
+
+      gameBoard[index] = currentPlayer;
+      updateBoard();
+
+      const winner = checkWinner(currentPlayer);
+      if (winner) {
+        message.textContent = `${currentPlayer} wins!`;
+        gameOver = true;
+        drawWinLine(winner);
+        return;
+      }
+
+      if (gameBoard.every(cell => cell !== '')) {
+        message.textContent = "It's a draw!";
+        gameOver = true;
+        return;
+      }
+
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+
+      if (currentPlayer === 'O' && !gameOver) {
+        setTimeout(computerMove, 500);
+      }
+    }
+
+    function computerMove() {
+      let bestMove = getBestMove();
+      makeMove(bestMove);
+    }
+
+    function updateBoard() {
+      const cells = document.querySelectorAll('.cell');
+      cells.forEach((cell, i) => {
+        cell.textContent = gameBoard[i];
+        if (gameBoard[i] !== '') {
+          cell.classList.add('taken');
+        }
+      });
+    }
+
+    function checkWinner(player) {
+      for (let pattern of winPatterns) {
+        if (pattern.every(index => gameBoard[index] === player)) {
+          return pattern; // return winning pattern
+        }
+      }
+      return null;
+    }
+
+    function drawWinLine(pattern) {
+      const positions = [
+        {x: 50, y: 50}, {x: 155, y: 50}, {x: 260, y: 50},
+        {x: 50, y: 155}, {x: 155, y: 155}, {x: 260, y: 155},
+        {x: 50, y: 260}, {x: 155, y: 260}, {x: 260, y: 260}
+      ];
+      ctx.strokeStyle = "red";
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(positions[pattern[0]].x, positions[pattern[0]].y);
+      ctx.lineTo(positions[pattern[2]].x, positions[pattern[2]].y);
+      ctx.stroke();
+    }
+
+    // Minimax AI
+    function getBestMove() {
+      let bestScore = -Infinity;
+      let move;
+      for (let i = 0; i < gameBoard.length; i++) {
+        if (gameBoard[i] === '') {
+          gameBoard[i] = 'O';
+          let score = minimax(gameBoard, 0, false);
+          gameBoard[i] = '';
+          if (score > bestScore) {
+            bestScore = score;
+            move = i;
+          }
+        }
+      }
+      return move;
+    }
+
+    function minimax(boardState, depth, isMaximizing) {
+      if (checkWinner('O')) return 10 - depth;
+      if (checkWinner('X')) return depth - 10;
+      if (boardState.every(cell => cell !== '')) return 0;
+
+      if (isMaximizing) {
+        let bestScore = -Infinity;
+        for (let i = 0; i < boardState.length; i++) {
+          if (boardState[i] === '') {
+            boardState[i] = 'O';
+            let score = minimax(boardState, depth + 1, false);
+            boardState[i] = '';
+            bestScore = Math.max(score, bestScore);
+          }
+        }
+        return bestScore;
+      } else {
+        let bestScore = Infinity;
+        for (let i = 0; i < boardState.length; i++) {
+          if (boardState[i] === '') {
+            boardState[i] = 'X';
+            let score = minimax(boardState, depth + 1, true);
+            boardState[i] = '';
+            bestScore = Math.min(score, bestScore);
+          }
+        }
+        return bestScore;
+      }
+    }
+
+    resetBtn.addEventListener('click', startGame);
+
+    startGame();
+  </script>
+
+</body>
+</html>

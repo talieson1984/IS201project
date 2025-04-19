@@ -1,0 +1,105 @@
+ html{
+    scrollbar-width: smooth;
+ }
+  .common {
+    background-color: #f4f4f4;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  /* Main content styles */
+  .mainBody {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex; /* 👈 new */
+    flex-direction: column; /* 👈 new */
+    align-items: center;
+    
+  }
+
+  /* Style for the main list */
+  .mainBody ul {
+    padding-left: 0; /* No extra left padding */
+    margin: 0;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    list-style: none; /* Remove bullets for top-level items */
+  }
+
+  /* Style for main list items (headings) */
+  .mainBody > ul > li {
+    font-size: 24px; /* Bigger size for headings */
+    font-weight: bold;
+    margin: 25px 0 10px 0;
+    text-align: center;
+  }
+
+  /* Style for nested lists */
+  .mainBody ul ul {
+    list-style-type: circle; /* Circle bullets for nested lists */
+    padding-left: 20px; /* Small indent for nested items */
+    font-size: 18px;
+    text-align: left; /* Keep nested bullets left-aligned */
+  }
+
+  /* Nested list items */
+  .mainBody ul ul li {
+    margin: 5px 0;
+}
+
+.header{
+    background-color: black;
+    color: white;
+    height: 100px;
+    line-height: 100px;
+}
+
+.footer{
+    position: fixed;
+    background-color: black;
+    color: white;
+    bottom:0px;
+    left:5px;
+    right:5px;
+    height:25px;
+    line-height: 25px;
+
+}
+
+img{
+    display:block;
+    width: 25%;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+nav{
+    background-color: lightblue;
+    padding: 10px;
+    overflow: hidden;
+    
+}
+
+nav a{
+    color: #333;
+    text-decoration: none;
+    padding: 20px;
+    font-weight: bold;
+
+}
+nav a:hover{
+    background-color:#ccc;
+
+}
+
+.jump{
+    text-align: center;
+    color: black;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
